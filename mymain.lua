@@ -41,8 +41,8 @@ local params = {batch_size=20,
                ]]--
 
 -- Trains 1h and gives test 115 perplexity.
-local params = {batch_size=21,
-                seq_length=21,
+local params = {batch_size=20,
+                seq_length=20,
                 layers=2,
                 decay=2,
                 rnn_size=200,
@@ -184,7 +184,6 @@ local function bp(state)
   paramx:add(paramdx:mul(-params.lr))
 end
 
---[[
 local function run_valid()
   reset_state(state_valid)
   g_disable_dropout(model.rnns)
@@ -214,7 +213,6 @@ local function run_test()
   print("Test set perplexity : " .. g_f3(torch.exp(perp / (len - 1))))
   g_enable_dropout(model.rnns)
 end
---]]
 
 local function main()
   g_init_gpu(arg)
