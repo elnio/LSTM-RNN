@@ -14,6 +14,14 @@ local ptb_path = "./data/"
 local vocab_idx = 0
 local vocab_map = {}
 
+
+--- s:gsub("^(.)(.*)", "%2%1")
+-- take the label and put it in the end. This way the rnn will use it to unfold the tree
+-- text:gsub("^(.)(.*)", "%2%1")
+-- BEFORE WE TURN IT TO LOWER CASE     -- If a word is written in all capital
+--    text = text:gsub(" [A-Z]+ ", "NEXTISCAPITAL%1")
+
+
 --[[
 This function takes a 1-D tensor of size (M) and produces a 2-D tensor of size (M/batch_size x batch_size).
 So given:
