@@ -140,7 +140,7 @@ local stopWordDict = {
 "yourself",
 "yourselves"}
 
-input = 'trainSample.csv'
+local input = 'trainSample.csv'
 local stringx = require('pl.stringx')
 require 'ffi'
 
@@ -158,17 +158,17 @@ testCropped[splitPoint]
 local howManyReviews = 8--650000 -- number of reviews in the csv file
 local maxSentencesFromEachDocument = 5 -- if K80 can do it, increase it a lot so we can take account for all the sentences.
 local maxSeqLength = 20
-vocab_idx = 0
-vocab_map = {}
+local vocab_idx = 0
+local vocab_map = {}
 --[[
 rows: we have "howManyReviews" and for each we are extracting "maxSentencesFromEachDocument"
 cols: we are keeping "maxSeqLength" words from each sentence + 1 for the sentiment label in the end
 --]]
 local x = torch.zeros( howManyReviews * maxSentencesFromEachDocument,  maxSeqLength + 1 )
- idxSentence = 1
+local idxSentence = 1
 
 function load_csv(fileName)
-	fd = io.open(fileName)	
+	local fd = io.open(fileName)	
 	for review in fd:lines() do
 		sentimentLabel = review:sub(1,1)
 		-- The input from the csv will be like 1,"document", so we simply extract the document with the following commands.
