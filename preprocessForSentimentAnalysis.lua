@@ -1,5 +1,4 @@
--- Commands executed with textwrangler editor
--- 
+
 
 local stopWordDict = {
 "a",
@@ -140,34 +139,21 @@ local stopWordDict = {
 "yourself",
 "yourselves"}
 
-local input = 'trainSample.csv'
 local stringx = require('pl.stringx')
 require 'ffi'
 
-
---[[  FOR TESTING BIG ALLOCATION ON K80
-test = torch.randn(100000000,20)
-splitPoint = 70000000
-testCropped = test:sub(1, splitPoint)
-testCropped:size(1) == splitPoint
-test[splitPoint]
-testCropped[splitPoint]
---]]
-
-
-local howManyReviews = 8--650000 -- number of reviews in the csv file
-local maxSentencesFromEachDocument = 5 -- if K80 can do it, increase it a lot so we can take account for all the sentences.
-local maxSeqLength = 19
-vocab_idx = 5
+-- 1,2,3,4,5 is for sentiments. 6 is for end of sentence, so we start from 7 
+vocab_idx = 7
 vocab_map = {}
+
 --[[
 rows: we have "howManyReviews" and for each we are extracting "maxSentencesFromEachDocument"
 cols: we are keeping "maxSeqLength" words from each sentence + 1 for the sentiment label in the end
 --]]
-function load_csv()
+function load_csv(inputFile, howManyReviews, maxSentencesFromEachDocument, maxSeqLength,  )
 	local x = torch.zeros( howManyReviews * maxSentencesFromEachDocument,  maxSeqLength + 1 )
 	local idxSentence = 1
-	local fd = io.open(input)	
+	local fd = io.open(inputFile)	
 	for review in fd:lines() do
 		sentimentLabel = review:sub(1,1)
 		-- The input from the csv will be like 1,"document", so we simply extract the document with the following commands.
@@ -189,7 +175,7 @@ function load_csv()
     						gsub("[8:=;]['`-]?[pP]", " LOLFACE "):
 			    			gsub("[8:=;]['`-]?[|\\/]", " NEUTRALFACE "):
     						gsub("[8:=;]['`-]?[S]", " CONFUSEDFACE "):
-			    			gsub("%^%^", " EVILEARS ")
+			    			gsub("%^%^", " EVILEARS ")   gsub("pp+"
 			    			
 		-- 5) handle special symbols
 	    review = review:gsub("\\n", " "):
@@ -228,8 +214,8 @@ function load_csv()
 					end
 					-- if the word doesn't exist in the dictionary then add it to it.		
 					if vocab_map[ words[i]]  == nil then
-						vocab_idx = vocab_idx + 1
 						vocab_map[ words[i] ] = vocab_idx
+						vocab_idx = vocab_idx + 1
 					end
 					x[idxSentence][i] = vocab_map[ words[i] ]
 				end
@@ -242,5 +228,5 @@ function load_csv()
 	-- remove the empty lines we didn't get to use (they are a lot because we pre-allocated the maximum amount of space for speed)
 	-- idxSentence was incremented in the end of the loop so that's why we subtract 1
 	x = x:sub(1, idxSentence-1) 
-	return x	
+	return vocab_idx, x	
 end

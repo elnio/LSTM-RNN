@@ -22,6 +22,7 @@ else
 end
 require('nngraph')
 require('base')
+require('preprocessForSentimentAnalysis')
 local ptb = require('data')
 
 -- Train 1 day and gives 82 perplexity.
@@ -49,7 +50,7 @@ local params = {batch_size=20,
                 dropout=0,
                 init_weight=0.1,
                 lr=1,
-                vocab_size=10000,
+                vocab_size=10000, -- this will be populated later by main function.
                 max_epoch=4,
                 max_max_epoch=13,
                 max_grad_norm=5}
@@ -216,12 +217,16 @@ end
 
 local function main()
   g_init_gpu(arg)
-  state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
-  state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
-  state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
+  params.vocab_size, trainArray = load_csv()
+  state_train = {data=transfer_data( trainArray )}
+  --state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
+  --state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
+  --state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
+  
   print("Network parameters:")
   print(params)
-  local states = {state_train, state_valid, state_test}
+  --local states = {state_train, state_valid, state_test}
+  local states = {state_train}
   for _, state in pairs(states) do
     reset_state(state)
   end
@@ -266,7 +271,7 @@ local function main()
       collectgarbage()
     end
   end
-  run_test()
+  --run_test()
   print("Training is over.")
 end
 

@@ -27,7 +27,7 @@ params = {batch_size=20,
                 dropout=0,
                 init_weight=0.1,
                 lr=1,
-                vocab_size=10000,
+                vocab_size=100,
                 max_epoch=4,
                 max_max_epoch=13,
                 max_grad_norm=5}
@@ -174,8 +174,9 @@ paramx, paramdx
 
 ---------------------------------- SERIOUS STUFF ----------------------------------
 
-state_train = {data=transfer_data( ptb.traindataset(params.batch_size) )}
---state_train = {data=transfer_data( load_csv() )}
+--state_train = {data=transfer_data( ptb.traindataset(params.batch_size) )}
+params.vocab_size, trainArray = load_csv()
+tate_train = {data=transfer_data( trainArray )}
 
 reset_state(state_train)
 setup()
