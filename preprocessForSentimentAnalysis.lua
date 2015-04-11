@@ -157,7 +157,7 @@ testCropped[splitPoint]
 
 local howManyReviews = 8--650000 -- number of reviews in the csv file
 local maxSentencesFromEachDocument = 5 -- if K80 can do it, increase it a lot so we can take account for all the sentences.
-local maxSeqLength = 20
+local maxSeqLength = 19
 vocab_idx = 5
 vocab_map = {}
 --[[

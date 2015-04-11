@@ -19,8 +19,8 @@ g_init_gpu(arg)
 
 ptb = require('data')
 ptb2 = require('preprocessForSentimentAnalysis')
-params = {batch_size=21,
-                seq_length=21,
+params = {batch_size=20,
+                seq_length=20,
                 layers=2,
                 decay=2,
                 rnn_size=200,
@@ -34,9 +34,6 @@ params = {batch_size=21,
 function transfer_data(x)
   return x:cuda()
 end
-state_train, state_valid, state_test
-model = {}
-paramx, paramdx
 function lstm(i, prev_c, prev_h)
   local function new_input_sum()
     local i2h            = nn.Linear(params.rnn_size, params.rnn_size)
@@ -110,17 +107,12 @@ function reset_state(state)
     end
   end
 end
+
 function reset_ds()
   for d = 1, #model.ds do
     model.ds[d]:zero()
   end
 end
-step = 0
-epoch = 0
-total_cases = 0
-words_per_step = params.seq_length * params.batch_size
-
-
 ---------------------------------- IMPORTANT FUNCTIONS ----------------------------------
 function fp(state)
   g_replace_table(model.s[0], model.start_s)
@@ -160,6 +152,22 @@ function bp(state)
   end
   paramx:add(paramdx:mul(-params.lr))
 end
+
+
+
+
+
+
+step = 0
+epoch = 0
+total_cases = 0
+words_per_step = params.seq_length * params.batch_size
+
+model = {}
+state_train, state_valid, state_test
+paramx, paramdx
+
+
 
 
 
