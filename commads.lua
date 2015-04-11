@@ -15,6 +15,7 @@ else
 end
 require('nngraph')
 require('base')
+arg = {2}
 g_init_gpu(arg)
 
 ptb = require('data')
@@ -27,7 +28,7 @@ params = {batch_size=20,
                 dropout=0,
                 init_weight=0.1,
                 lr=1,
-                vocab_size=171,
+                vocab_size=10000,
                 max_epoch=4,
                 max_max_epoch=13,
                 max_grad_norm=5}
@@ -174,10 +175,10 @@ paramx, paramdx
 
 ---------------------------------- SERIOUS STUFF ----------------------------------
 
---state_train = {data=transfer_data( ptb.traindataset(params.batch_size) )}
-params.vocab_size, trainArray = load_csv('trainSample.csv', 8, 5, 19)
-trainArray = torch.randn( trainArray:size() )
-state_train = {data=transfer_data( trainArray )}
+state_train = {data=transfer_data( ptb.traindataset(params.batch_size) )}
+--params.vocab_size, trainArray = loads_csv('trainSample.csv', 8, 5, 19)
+--trainArray = torch.randn( trainArray:size() )
+--state_train = {data=transfer_data( trainArray )}
 
 
 reset_state(state_train)
@@ -187,3 +188,27 @@ fp(state_train)
 
 
 
+
+
+
+
+g_replace_table(model.s[0], model.start_s)
+if state_train.pos + params.seq_length > state_train.data:size(1) then
+	print("mpika")
+	reset_state(state_train)
+end
+
+for i = 1, params.seq_length do
+	local x = state_train.data[state_train.pos]
+    local y = state_train.data[state_train.pos + 1]
+    local s = model.s[i - 1]
+    model.err[i], model.s[i] = unpack(model.rnns[i]:forward({x, y, s}))
+    state_train.pos = state_train.pos + 1
+end
+
+-- manual cases
+i=params.seq_length-1
+i=params.seq_length
+
+g_replace_table(model.start_s, model.s[params.seq_length])
+model.err:mean()

@@ -5,7 +5,7 @@
 ----  This source code is licensed under the Apache 2 license found in the
 ----  LICENSE file in the root directory of this source tree. 
 ----
-local ok,cunn = pcall(require, 'fbcunn')
+ok,cunn = pcall(require, 'fbcunn')
 if not ok then
     ok,cunn = pcall(require,'cunn')
     if ok then
@@ -22,8 +22,7 @@ else
 end
 require('nngraph')
 require('base')
-require('preprocessForSentimentAnalysis')
-local ptb = require('data')
+ptb = require('data')
 
 -- Train 1 day and gives 82 perplexity.
 --[[
@@ -42,7 +41,7 @@ local params = {batch_size=20,
                ]]--
 
 -- Trains 1h and gives test 115 perplexity.
-local params = {batch_size=20,
+params = {batch_size=20,
                 seq_length=20,
                 layers=2,
                 decay=2,
@@ -50,20 +49,20 @@ local params = {batch_size=20,
                 dropout=0,
                 init_weight=0.1,
                 lr=1,
-                vocab_size=10000, -- this will be populated later by main function.
+                vocab_size=10000,
                 max_epoch=4,
                 max_max_epoch=13,
                 max_grad_norm=5}
 
-local function transfer_data(x)
+function transfer_data(x)
   return x:cuda()
 end
 
-local state_train, state_valid, state_test
-local model = {}
-local paramx, paramdx
+state_train, state_valid, state_test
+model = {}
+paramx, paramdx
 
-local function lstm(i, prev_c, prev_h)
+function lstm(i, prev_c, prev_h)
   local function new_input_sum()
     local i2h            = nn.Linear(params.rnn_size, params.rnn_size)
     local h2h            = nn.Linear(params.rnn_size, params.rnn_size)
@@ -81,7 +80,7 @@ local function lstm(i, prev_c, prev_h)
   return next_c, next_h
 end
 
-local function create_network()
+function create_network()
   local x                = nn.Identity()()
   local y                = nn.Identity()()
   local prev_s           = nn.Identity()()
@@ -108,7 +107,7 @@ local function create_network()
   return transfer_data(module)
 end
 
-local function setup()
+function setup()
   print("Creating a RNN LSTM network.")
   local core_network = create_network()
   paramx, paramdx = core_network:getParameters()
@@ -131,7 +130,7 @@ local function setup()
   model.err = transfer_data(torch.zeros(params.seq_length))
 end
 
-local function reset_state(state)
+function reset_state(state)
   state.pos = 1
   if model ~= nil and model.start_s ~= nil then
     for d = 1, 2 * params.layers do
@@ -140,14 +139,13 @@ local function reset_state(state)
   end
 end
 
-local function reset_ds()
+function reset_ds()
   for d = 1, #model.ds do
     model.ds[d]:zero()
   end
 end
 
----------------------------------- FPROP Function -----------------------------------
-local function fp(state)
+function fp(state)
   g_replace_table(model.s[0], model.start_s)
   if state.pos + params.seq_length > state.data:size(1) then
     reset_state(state)
@@ -159,15 +157,11 @@ local function fp(state)
     model.err[i], model.s[i] = unpack(model.rnns[i]:forward({x, y, s}))
     state.pos = state.pos + 1
   end
-  -- in our case we don't need to initialize the start_s as the last hidden layer because
-  -- consecutive inputs are independent to each other (rather we init with 0s).
-  --g_replace_table(model.start_s, model.s[params.seq_length])
-  g_replace_table(model.start_s, transfer_data(torch.zeros(params.batch_size, params.rnn_size)))
+  g_replace_table(model.start_s, model.s[params.seq_length])
   return model.err:mean()
 end
 
----------------------------------- BPROP Function -----------------------------------
-local function bp(state)
+function bp(state)
   paramdx:zero()
   reset_ds()
   for i = params.seq_length, 1, -1 do
@@ -190,7 +184,7 @@ local function bp(state)
   paramx:add(paramdx:mul(-params.lr))
 end
 
-local function run_valid()
+function run_valid()
   reset_state(state_valid)
   g_disable_dropout(model.rnns)
   local len = (state_valid.data:size(1) - 1) / (params.seq_length)
@@ -202,7 +196,7 @@ local function run_valid()
   g_enable_dropout(model.rnns)
 end
 
-local function run_test()
+function run_test()
   reset_state(state_test)
   g_disable_dropout(model.rnns)
   local perp = 0
@@ -220,18 +214,14 @@ local function run_test()
   g_enable_dropout(model.rnns)
 end
 
-local function main()
+function main()
   g_init_gpu(arg)
-  params.vocab_size, trainArray = load_csv('trainSample.csv', 8, 5, 19)
-  state_train = {data=transfer_data( trainArray )}
-  --state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
-  --state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
-  --state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
-  
+  state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
+  state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
+  state_test =  {data=transfer_data(ptb.testdataset(params.batch_size))}
   print("Network parameters:")
   print(params)
-  --local states = {state_train, state_valid, state_test}
-  local states = {state_train}
+  local states = {state_train, state_valid, state_test}
   for _, state in pairs(states) do
     reset_state(state)
   end
@@ -276,7 +266,7 @@ local function main()
       collectgarbage()
     end
   end
-  --run_test()
+  run_test()
   print("Training is over.")
 end
 
