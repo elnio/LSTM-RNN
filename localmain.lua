@@ -59,7 +59,7 @@ function transfer_data(x)
 end
 
 --state_train, state_valid, state_test
---model = {}
+model = {}
 --paramx, paramdx
 
 function lstm(i, prev_c, prev_h)
