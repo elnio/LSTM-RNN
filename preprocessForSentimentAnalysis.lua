@@ -151,7 +151,8 @@ rows: we have "howManyReviews" and for each we are extracting "maxSentencesFromE
 cols: we are keeping "maxSeqLength" words from each sentence + 1 for the sentiment label in the end
 --]]
 function load_csv(inputFile, howManyReviews, maxSentencesFromEachDocument, maxSeqLength  )
-	local x = torch.zeros( howManyReviews * maxSentencesFromEachDocument,  maxSeqLength + 1 )
+	-- defining the end of sentence as the index 6.
+	local x = torch.zeros( howManyReviews * maxSentencesFromEachDocument,  maxSeqLength + 1 ):add(6)
 	local idxSentence = 1
 	local fd = io.open(inputFile)	
 	for review in fd:lines() do
