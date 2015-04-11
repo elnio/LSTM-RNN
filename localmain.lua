@@ -58,9 +58,9 @@ function transfer_data(x)
   return x:cuda()
 end
 
-state_train, state_valid, state_test
-model = {}
-paramx, paramdx
+--state_train, state_valid, state_test
+--model = {}
+--paramx, paramdx
 
 function lstm(i, prev_c, prev_h)
   local function new_input_sum()
