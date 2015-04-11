@@ -150,7 +150,7 @@ vocab_map = {}
 rows: we have "howManyReviews" and for each we are extracting "maxSentencesFromEachDocument"
 cols: we are keeping "maxSeqLength" words from each sentence + 1 for the sentiment label in the end
 --]]
-function load_csv(inputFile, howManyReviews, maxSentencesFromEachDocument, maxSeqLength,  )
+function load_csv(inputFile, howManyReviews, maxSentencesFromEachDocument, maxSeqLength  )
 	local x = torch.zeros( howManyReviews * maxSentencesFromEachDocument,  maxSeqLength + 1 )
 	local idxSentence = 1
 	local fd = io.open(inputFile)	

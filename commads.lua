@@ -175,7 +175,7 @@ paramx, paramdx
 ---------------------------------- SERIOUS STUFF ----------------------------------
 
 --state_train = {data=transfer_data( ptb.traindataset(params.batch_size) )}
-params.vocab_size, trainArray = load_csv()
+params.vocab_size, trainArray = load_csv('trainSample.csv', 8, 5, 19)
 tate_train = {data=transfer_data( trainArray )}
 
 reset_state(state_train)

@@ -217,7 +217,7 @@ end
 
 local function main()
   g_init_gpu(arg)
-  params.vocab_size, trainArray = load_csv()
+  params.vocab_size, trainArray = load_csv('trainSample.csv', 8, 5, 19)
   state_train = {data=transfer_data( trainArray )}
   --state_train = {data=transfer_data(ptb.traindataset(params.batch_size))}
   --state_valid =  {data=transfer_data(ptb.validdataset(params.batch_size))}
