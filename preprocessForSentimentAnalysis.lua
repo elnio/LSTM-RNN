@@ -175,7 +175,7 @@ function load_csv(inputFile, howManyReviews, maxSentencesFromEachDocument, maxSe
     						gsub("[8:=;]['`-]?[pP]", " LOLFACE "):
 			    			gsub("[8:=;]['`-]?[|\\/]", " NEUTRALFACE "):
     						gsub("[8:=;]['`-]?[S]", " CONFUSEDFACE "):
-			    			gsub("%^%^", " EVILEARS ")   gsub("pp+"
+			    			gsub("%^%^", " EVILEARS ")
 			    			
 		-- 5) handle special symbols
 	    review = review:gsub("\\n", " "):
